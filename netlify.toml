@@ -1,0 +1,4 @@
+[functions]
+  # Nitro already emits a bundled Netlify function. Use Netlify's faster
+  # JavaScript bundler for the final packaging pass.
+  node_bundler = "esbuild"

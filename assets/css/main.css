@@ -1,0 +1,422 @@
+/* keep in sync with lib/theme.ts
+   Near-black ground, brand gradient (#CE2A7F -> #694FD4 -> #0EABCD) as the
+   identity: gradient glow, gradient rules, gradient text accents.
+   Fonts are registered in nuxt.config.ts `css` so Vite rewrites their URLs. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ground: a soft near-black with a violet cast rather than pure #000 —
+     pitch black against bright glyphs is what makes long reads harsh. The
+     whole ladder lifts together so surfaces and hairlines keep their
+     separation from the ground. */
+  --bg: #0b0c12;
+  --bg-2: #13141f;
+  --bg-3: #1b1d2a;
+  --line: #2a2d3c;
+  --line-soft: #1e2030;
+
+  /* text ladder. Every step here carries text, so every step clears 4.5:1 on
+     the ground — except --faint, which is decorative only (chevrons, arrow
+     glyphs, oversized step numerals) and is held at 3:1. Anything a reader
+     has to actually read stops at --dim. */
+  --fg: #f2f3f7;
+  --fg-soft: #b3b6c4;
+  --dim: #7e8294;
+  --faint: #6b7085;
+
+  /* the brand gradient, from the logo */
+  --g1: #ce2a7f;
+  --g2: #694fd4;
+  --g3: #0eabcd;
+  --g1-rgb: 206 42 127;
+  --g2-rgb: 105 79 212;
+  --g3-rgb: 14 171 205;
+  --grad: linear-gradient(90deg, var(--g1) 0%, var(--g2) 50%, var(--g3) 100%);
+  /* Lifted stops for text on the near-black ground. This is not only a
+     taste call: measured against --bg, the true brand violet lands at
+     3.4:1 and the magenta at 4.0:1, both under the 4.5:1 floor for the
+     11px uppercase labels they colour. The lifted trio clears 5.3:1 even
+     on --bg-3 and still reads as the same three hues. Raw --g1/--g2/--g3
+     stay for rules, borders and glows, where nothing has to be read. */
+  --g1-lift: #ff64b0;
+  --g2-lift: #9d7bff;
+  --g3-lift: #38d4f6;
+  --grad-bright: linear-gradient(90deg, var(--g1-lift) 0%, var(--g2-lift) 50%, var(--g3-lift) 100%);
+
+  --bg-rgb: 11 12 18;
+  --fg-rgb: 242 243 247;
+
+  --mono: "DM Mono", ui-monospace, monospace;
+  --sans: "Inter Variable", "Inter", system-ui, sans-serif;
+  --size-label: 11px;
+  --size-body: 15px;
+  /* Display type is sized against BOTH axes. Sizing on width alone means a
+     short viewport — which is exactly what a zoomed-in browser produces —
+     grows the headline tall enough to collide with anything above it. The
+     vh term makes the scale universal: the same proportions at any zoom
+     level or device, because it can never outgrow the height available. */
+  --size-head: clamp(1.75rem, min(4.2vw, 5.2vh), 3.1rem);
+  --size-huge: clamp(2.4rem, min(7.5vw, 9vh), 6rem);
+
+  --max: 1200px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --nav-h: 60px;
+
+  /* the accent every interactive element resolves to on hover and while
+     active. It was referenced across the nav and footer but never declared,
+     so hover and current-page states silently rendered as no change at all. */
+  --accent: var(--g3-lift);
+
+  --hue: var(--g3-lift);
+}
+
+/* ---- reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--line) var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--size-body);
+  line-height: 1.55;
+  color: var(--fg-soft);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+em,
+i { font-style: normal; }
+
+::selection { background: var(--g2); color: #fff; }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--fg);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+}
+
+p { margin: 0 0 1em; }
+a { color: inherit; text-decoration: none; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+.num, time { font-variant-numeric: tabular-nums; }
+
+/* ---- accessibility primitives ---- */
+
+/* One focus ring for the whole site. The UA default is a thin dark outline
+   that all but vanishes on a near-black ground, and several components had
+   already reached for `outline: none` to hide it — so keyboard users had no
+   reliable indication of where they were. */
+:focus-visible {
+  outline: 2px solid var(--g3-lift);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The skip link is the first thing in the tab order and is invisible until
+   it takes focus, at which point it must land on top of the fixed nav. */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: var(--gutter);
+  z-index: 100;
+  transform: translateY(-120%);
+  padding: 0.7rem 1.1rem;
+  background: var(--bg-2);
+  border: 1px solid var(--g3-lift);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: var(--size-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: transform 140ms cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+/* Landing on #main from the skip link must not tuck the heading under the
+   fixed nav. */
+#main { scroll-margin-top: var(--nav-h); }
+
+/* ---- house signature ---- */
+.label {
+  font-family: var(--mono);
+  font-size: var(--size-label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* hue cascade: the three gradient stops are the only hues, in their lifted
+   (text-legible) form — see the note on --g1-lift above */
+[data-hue="magenta"] { --hue: var(--g1-lift); }
+[data-hue="violet"] { --hue: var(--g2-lift); }
+[data-hue="cyan"] { --hue: var(--g3-lift); }
+.label-hue { color: var(--hue); }
+
+/* ---- gradient vocabulary ---- */
+.grad-text {
+  background: var(--grad-bright);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* a text-shadow would paint straight through the transparent glyphs */
+  text-shadow: none;
+}
+
+.grad-rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--grad);
+}
+
+/* the glow: a soft three-stop bloom for behind logos, heroes, key panels */
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 45% at 28% 55%, rgb(var(--g1-rgb) / 0.16), transparent 70%),
+    radial-gradient(42% 52% at 52% 40%, rgb(var(--g2-rgb) / 0.14), transparent 70%),
+    radial-gradient(38% 45% at 74% 55%, rgb(var(--g3-rgb) / 0.16), transparent 70%);
+  /* no filter: a viewport-sized blur on a composited layer is a known
+     stale-frame ghosting trigger; the radial gradients are already soft */
+}
+
+/* ---- layout primitives ---- */
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.section { padding: clamp(3rem, 8vh, 5.5rem) 0; }
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.4rem;
+}
+
+.eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.grid-hair {
+  display: grid;
+  gap: 1px;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+}
+
+.cell { background: var(--bg); padding: 1.4rem; }
+.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 860px) {
+  .cols-3, .cols-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; }
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+@media (max-width: 860px) {
+  .split { grid-template-columns: 1fr; }
+}
+
+/* ---- rows (ledgers, lists) ---- */
+.row {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line-soft);
+  transition: background 160ms linear;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--grad);
+  opacity: 0;
+  transition: opacity 180ms linear;
+}
+
+.row:hover,
+.row:focus-visible { background: var(--bg-2); }
+.row:hover::before,
+.row:focus-visible::before { opacity: 1; }
+
+.row .idx {
+  font-family: var(--mono);
+  font-size: var(--size-label);
+  /* --dim, not --faint: the index carries the row's category, so it has to
+     clear the text contrast floor rather than the decorative one */
+  color: var(--dim);
+}
+
+.row:hover .idx { color: var(--hue); }
+
+.row .arrow {
+  margin-left: auto;
+  color: var(--faint);
+  transition: transform 200ms cubic-bezier(0.33, 0, 0.2, 1), color 160ms linear;
+}
+
+.row:hover .arrow { transform: translateX(5px); color: var(--hue); }
+
+/* ---- cards ---- */
+.card {
+  position: relative;
+  background: var(--bg-2);
+  border: 1px solid var(--line-soft);
+  padding: 1.4rem;
+  transition: border-color 200ms linear, transform 200ms cubic-bezier(0.33, 0, 0.2, 1);
+}
+
+.card:hover { border-color: var(--line); transform: translateY(-2px); }
+
+.card-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: var(--grad);
+  opacity: 0;
+  filter: blur(14px);
+  transition: opacity 240ms linear;
+}
+
+.card-glow:hover::after { opacity: 0.35; }
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: var(--size-label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg);
+  position: relative;
+  transition: border-color 160ms linear, color 160ms linear;
+}
+
+.btn:hover { border-color: var(--g2); color: #fff; }
+
+.btn-grad {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    var(--grad) border-box;
+}
+
+.btn-grad:hover {
+  background:
+    linear-gradient(var(--bg-3), var(--bg-3)) padding-box,
+    var(--grad) border-box;
+  color: #fff;
+}
+
+/* ---- scrim for text over the 3D layer ---- */
+.scrim {
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.95),
+    0 0 16px rgb(0 0 0 / 0.9),
+    0 0 44px rgb(0 0 0 / 0.65);
+}
+
+/* ---- photos ---- */
+.photo-frame {
+  border: 1px solid var(--line-soft);
+  padding: 8px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 10px,
+    rgb(var(--fg-rgb) / 0.03) 10px 20px
+  );
+}
+
+.photo-frame img { width: 100%; height: auto; }
+
+/* ---- CSS draw-in for inline SVG line art (no JS needed) ---- */
+.poster path,
+.poster line,
+.poster circle,
+.poster polyline {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 1.2s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+.poster g:nth-child(2) path, .poster g:nth-child(2) line { animation-delay: 0.18s; }
+.poster g:nth-child(3) path, .poster g:nth-child(3) line { animation-delay: 0.36s; }
+.poster g:nth-child(4) path, .poster g:nth-child(4) line { animation-delay: 0.54s; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* ---- reduced motion: designed states, not blank ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .poster path, .poster line, .poster circle, .poster polyline { stroke-dashoffset: 0; }
+}
+
+@media print {
+  body { background: #fff; color: #000; }
+  nav, footer { display: none; }
+}

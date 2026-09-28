@@ -1,0 +1,10 @@
+{
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    // Nuxt 3.6 generates legacy "Node" resolution, which ignores package
+    // `exports` subpaths (animejs/animation etc.). Vite resolves them at
+    // build time; Bundler makes tsc agree with the bundler.
+    "moduleResolution": "Bundler"
+  }
+}

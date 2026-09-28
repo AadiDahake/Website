@@ -1,0 +1,21 @@
+fly.toml
+node_modules
+.nuxt
+.git
+.output
+.DS_Store
+dist
+
+# yarn.lock is authoritative; npm's lockfile is stale and unused
+package-lock.json
+
+# Offline CAD / footage — not imported by the Nuxt build (packed geometry
+# and YouTube embeds are used instead). ~114 MB of the 139 MB context.
+assets/glb
+assets/videos
+
+# Pack/iso generators — not needed to build or run the site
+scripts
+
+# Leftover three.js Draco demos — nothing in the app loads these
+public/js/libs/draco
