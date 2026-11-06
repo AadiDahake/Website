@@ -545,9 +545,7 @@
             name="Aadi Dahake"
             title="Mechanical"
             year="26"
-            email="namrataskumar18@gmail.com"
-            university="Georgia Tech"
-            to="https://www.gatech.edu/"
+            email="dahakeaadi@gmail.com"
           >
             <img loading="lazy" src="~/assets/images/team/aadi-dahake.webp" alt="Aadi Dahake">
           </PastTeamMember>
